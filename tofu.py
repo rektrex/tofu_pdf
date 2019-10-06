@@ -13,6 +13,7 @@ class Tofu(QWidget):
         self.keymaps = {
                 'j': self.next_page,
                 'k': self.previous_page,
+                'q': self.quit,
         }
 
         self.doc = fitz.open(filename)
@@ -53,6 +54,9 @@ class Tofu(QWidget):
 
         self.update()
 
+    def closeEvent(self, event):
+        pass
+
     def next_page(self):
         self.pageNumber += 1
         self.renderPage()
@@ -60,6 +64,9 @@ class Tofu(QWidget):
     def previous_page(self):
         self.pageNumber -= 1
         self.renderPage()
+
+    def quit(self):
+        QApplication.instance().quit()
 
     def keyPressEvent(self, event):
         key = event.text()
