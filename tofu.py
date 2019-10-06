@@ -73,14 +73,6 @@ class Tofu(QWidget):
         if key in self.keymaps.keys():
             self.keymaps[key]()
 
-def openFile(filename):
-    doc = fitz.open(filename)
-    page = doc[0]
-    pix = page.getPixmap()
-    fmt = QImage.Format_RGBA8888 if pix.alpha else QImage.Format_RGB888
-    qtimg = QImage(pix.samples, pix.width, pix.height, pix.stride, fmt)
-    return QPixmap.fromImage(qtimg)
-
 if __name__ == '__main__':
     filename = sys.argv[1]
 
