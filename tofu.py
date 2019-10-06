@@ -1,8 +1,9 @@
 #!/usr/bin/env python3
 
 import sys, fitz
-from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QVBoxLayout
+from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QVBoxLayout, QWidgetItem
 from PyQt5.QtGui import QImage, QPixmap
+from PyQt5.QtCore import Qt
 
 class Tofu(QWidget):
 
@@ -29,12 +30,13 @@ class Tofu(QWidget):
 
         label = QLabel(self)
         label.setPixmap(pixmap)
+        label.setAlignment(Qt.AlignCenter)
         
         self.vbox.addWidget(label)
+        self.vbox.setContentsMargins(0, 0, 0, 0)
 
         self.pageNumber = number
         self.update()
-        
 
 def openFile(filename):
     doc = fitz.open(filename)
