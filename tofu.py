@@ -10,6 +10,11 @@ class Tofu(QWidget):
     def __init__(self, filename):
         super().__init__()
 
+        self.keymaps = {
+                'j': self.next_page,
+                'k': self.previous_page,
+        }
+
         self.doc = fitz.open(filename)
         self.pageNumber = 0
         self.initUI()
@@ -27,8 +32,13 @@ class Tofu(QWidget):
         self.show()
         self.renderPage()
 
-    def renderPage(self, number = 0):
-        page = self.doc[number]
+    def clearLayout(self):
+        self.vbox.removeItem(self.vbox.itemAt(0))
+        self.update()
+
+    def renderPage(self):
+        self.clearLayout()
+        page = self.doc[self.pageNumber]
         pix = page.getPixmap()
         fmt = QImage.Format_RGBA8888 if pix.alpha else QImage.Format_RGB888
         img = QImage(pix.samples, pix.width, pix.height, pix.stride, fmt)
@@ -41,11 +51,20 @@ class Tofu(QWidget):
         self.vbox.addWidget(label)
         self.vbox.setContentsMargins(0, 0, 0, 0)
 
-        self.pageNumber = number
         self.update()
 
+    def next_page(self):
+        self.pageNumber += 1
+        self.renderPage()
+
+    def previous_page(self):
+        self.pageNumber -= 1
+        self.renderPage()
+
     def keyPressEvent(self, event):
-        pass
+        key = event.text()
+        if key in self.keymaps.keys():
+            self.keymaps[key]()
 
 def openFile(filename):
     doc = fitz.open(filename)
