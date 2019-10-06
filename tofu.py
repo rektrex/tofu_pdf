@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 import sys, fitz
-from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QVBoxLayout, QWidgetItem
+from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QVBoxLayout, QWidgetItem, QDesktopWidget
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import Qt
 
@@ -15,6 +15,12 @@ class Tofu(QWidget):
         self.initUI()
 
     def initUI(self):
+        # Center window on screen, not accurate right now
+        qtRect = self.frameGeometry()
+        centerPoint = QDesktopWidget().availableGeometry().center()
+        qtRect.moveCenter(centerPoint)
+        self.move(qtRect.topLeft())
+
         self.vbox = QVBoxLayout(self)
         self.setLayout(self.vbox)
         self.setWindowTitle('Tofu PDF')
@@ -37,6 +43,9 @@ class Tofu(QWidget):
 
         self.pageNumber = number
         self.update()
+
+    def keyPressEvent(self, event):
+        pass
 
 def openFile(filename):
     doc = fitz.open(filename)
