@@ -1,14 +1,21 @@
 #!/usr/bin/env python3
 
 import sys, fitz
+import os
+from pathlib import Path
 from PyQt5.QtWidgets import QWidget, QLabel, QApplication, QVBoxLayout, QWidgetItem, QDesktopWidget
 from PyQt5.QtGui import QImage, QPixmap
 from PyQt5.QtCore import Qt
+
+home = str(Path.home())
 
 class Tofu(QWidget):
 
     def __init__(self, filename):
         super().__init__()
+
+        if not os.path.isdir(home + '/.tofu_pdf'):
+            os.mkdir(home + '/.tofu_pdf')
 
         self.keymaps = {
                 'j': self.next_page,
@@ -16,8 +23,18 @@ class Tofu(QWidget):
                 'q': self.quit,
         }
 
+        self.title = os.path.splitext(os.path.basename(filename))[0]
         self.doc = fitz.open(filename)
+        self.metadata = self.doc.metadata
         self.pageNumber = 0
+
+        with open(home + '/.tofu_pdf/' + self.title, 'r') as f:
+            oldData = f.read()
+            storedData = dict()
+            if isinstance(eval(oldData), dict):
+                storedData = eval(oldData)
+                self.pageNumber = storedData.get('pageNumber', 0)
+
         self.initUI()
 
     def initUI(self):
@@ -54,8 +71,14 @@ class Tofu(QWidget):
 
         self.update()
 
-    def closeEvent(self, event):
-        pass
+    def saveToFile(self, key, value):
+        with open(home + '/.tofu_pdf/' + self.title, 'w+') as f:
+            oldData = f.read()
+            storedData = dict()
+            if isinstance(oldData, dict):
+                storedData = eval(oldData)
+            storedData[key] = value
+            f.write(str(storedData))
 
     def next_page(self):
         self.pageNumber += 1
@@ -66,6 +89,7 @@ class Tofu(QWidget):
         self.renderPage()
 
     def quit(self):
+        self.saveToFile("pageNumber", self.pageNumber)
         QApplication.instance().quit()
 
     def keyPressEvent(self, event):
