@@ -28,12 +28,13 @@ class Tofu(QWidget):
         self.metadata = self.doc.metadata
         self.pageNumber = 0
 
-        with open(home + '/.tofu_pdf/' + self.title, 'r') as f:
-            oldData = f.read()
-            storedData = dict()
-            if isinstance(eval(oldData), dict):
-                storedData = eval(oldData)
-                self.pageNumber = storedData.get('pageNumber', 0)
+        if os.path.isfile(home + '/.tofu_pdf/' + self.title):
+            with open(home + '/.tofu_pdf/' + self.title, 'r') as f:
+                oldData = f.read()
+                storedData = dict()
+                if isinstance(eval(oldData), dict):
+                    storedData = eval(oldData)
+                    self.pageNumber = storedData.get('pageNumber', 0)
 
         self.initUI()
 
