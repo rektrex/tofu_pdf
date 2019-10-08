@@ -158,6 +158,10 @@ class Tofu(QWidget):
             commands.append(key)
             return
 
+        if event.key() == Qt.Key_Escape:
+            commands = []
+            return
+
         if event.key() == Qt.Key_Return and commands:
             command = commands[0]
             number = int("".join(commands[1:]))
