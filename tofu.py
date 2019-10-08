@@ -8,6 +8,7 @@ from PyQt5.QtCore import Qt
 
 
 home = Path.home() # gets $HOME or equivalent
+commands = []
 
 class Tofu(QWidget):
     """Derived from QWidget; is the main widget of the application.
@@ -33,6 +34,7 @@ class Tofu(QWidget):
                 'j': self.next_page,
                 'k': self.previous_page,
                 'q': self.quit,
+                'g': self.goto,
         }
 
         self.title = Path(filename).stem # get name of the file, preferred because metadata['title'] is not often available
@@ -103,10 +105,13 @@ class Tofu(QWidget):
             value (any): value of the property.
         """
 
-        oldData = self.fileDataPath.read_text()
         storedData = dict()
-        if isinstance(eval(oldData), dict):
-            storedData = eval(oldData)
+
+        if self.fileDataPath.exists():
+            oldData = self.fileDataPath.read_text()
+            if isinstance(eval(oldData), dict):
+                storedData = eval(oldData)
+
         storedData[key] = value
         self.fileDataPath.write_text(str(storedData))
 
@@ -125,6 +130,17 @@ class Tofu(QWidget):
         self.renderPage()
 
 
+    def goto(self, number):
+        """Move to the given page number.
+
+        Parameters:
+            number (int): page number to move to.
+        """
+
+        self.pageNumber = number
+        self.renderPage()
+
+
     def quit(self):
         '''Store current page number and quit.'''
 
@@ -135,7 +151,20 @@ class Tofu(QWidget):
     def keyPressEvent(self, event):
         '''Call functions associated with a key press, if any.'''
 
+        global commands
         key = event.text()
+
+        if key == 'g' or key.isnumeric():
+            commands.append(key)
+            return
+
+        if event.key() == Qt.Key_Return and commands:
+            command = commands[0]
+            number = int("".join(commands[1:]))
+            commands = []
+            self.keymaps[command](number)
+            return
+
         if key in self.keymaps.keys():
             self.keymaps[key]()
 
